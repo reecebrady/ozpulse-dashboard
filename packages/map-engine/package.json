@@ -1,0 +1,23 @@
+{
+  "name": "@ozpulse/map-engine",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "maplibre-gl": "^5.1.0",
+    "@ozpulse/shared": "*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.0",
+    "@types/react": "^19.0.0"
+  }
+}
