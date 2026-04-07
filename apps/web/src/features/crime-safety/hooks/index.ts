@@ -8,3 +8,5 @@ export {
 export { useSchoolSafety, useSchoolsByRadius } from "./use-school-safety";
 
 export { useCrimeAlerts } from "./use-crime-alerts";
+export { useNeighbourhoodRisk } from "./use-neighbourhood-risk";
+export { useAllCrimeAlerts } from "./use-all-crime-alerts";

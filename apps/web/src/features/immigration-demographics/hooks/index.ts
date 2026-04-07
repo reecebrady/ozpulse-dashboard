@@ -12,3 +12,4 @@ export {
 } from "./use-diaspora-data";
 
 export { useDemographicAlerts } from "./use-demographic-alerts";
+export { useAllDemographicAlerts } from "./use-all-demographic-alerts";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useUserProfile } from "@/stores/user-profile";
+import { useUserProfileStore } from "@/stores/user-profile";
 import { useEquityWidget } from "../hooks/use-equity-widget";
 import type { MortgageInput } from "@ozpulse/shared";
 
@@ -9,20 +9,21 @@ import type { MortgageInput } from "@ozpulse/shared";
  * Shows current equity estimate and 12m trend.
  */
 export function EquityWidget() {
-  const profile = useUserProfile((s) => s.profile);
+  const profile = useUserProfileStore((s) => s.profile);
+  const hasProfile = useUserProfileStore((s) => s.hasProfile);
 
   const mortgageInput: MortgageInput | null =
-    profile?.mortgageDetails
+    hasProfile && profile.mortgageValue > 0
       ? {
-          propertyValue: profile.mortgageDetails.propertyValue,
-          loanRemaining: profile.mortgageDetails.loanRemaining,
-          remainingTermYears: profile.mortgageDetails.remainingTermYears,
-          interestRate: profile.mortgageDetails.interestRate,
-          netWorth: profile.mortgageDetails.netWorth ?? 550000,
+          propertyValue: profile.mortgageValue,
+          loanRemaining: profile.loanRemaining,
+          remainingTermYears: profile.remainingTermYears,
+          interestRate: profile.interestRate,
+          netWorth: profile.mortgageValue - profile.loanRemaining,
         }
       : null;
 
-  const widget = useEquityWidget(mortgageInput, profile?.postcode ?? null);
+  const widget = useEquityWidget(mortgageInput, hasProfile ? profile.postcode : null);
 
   const trendColor =
     widget.trend === "up"
