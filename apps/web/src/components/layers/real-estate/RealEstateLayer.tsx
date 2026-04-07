@@ -14,9 +14,9 @@ import { useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLayerManager } from "@/components/map/LayerManager";
 import { useMapStore } from "@/stores/map-store";
-import { useUserProfile } from "@/stores/user-profile";
-import { SuburbStatsPanel } from "./SuburbStatsPanel";
-import { MortgageCalculator } from "./MortgageCalculator";
+import { useUserProfileStore } from "@/stores/user-profile";
+import { SuburbStatsCard } from "@/features/real-estate/components/suburb-stats-card";
+import { MortgageCalculator } from "@/features/real-estate/components/mortgage-calculator";
 import type { PriceHeatmapPoint, PropertyListing } from "@ozpulse/shared";
 
 // ---------------------------------------------------------------------------
@@ -106,7 +106,7 @@ export interface RealEstateLayerProps {
 export default function RealEstateLayer({ enabled }: RealEstateLayerProps) {
   const { registerOverlay, removeOverlay } = useLayerManager();
   const zoom = useMapStore((s) => s.view.zoom);
-  const profile = useUserProfile((s) => s.profile);
+  const profile = useUserProfileStore((s: { profile: { postcode: string } }) => s.profile);
   const userPostcode = profile?.postcode ?? "2000";
 
   const { data: heatmapData, isLoading: heatmapLoading } = useHeatmap(enabled);
@@ -252,9 +252,6 @@ export default function RealEstateLayer({ enabled }: RealEstateLayerProps) {
           {listingsData && zoom >= 10 && ` | ${listingsData.total} listings near ${userPostcode}`}
         </p>
       )}
-
-      {/* Suburb Stats Panel */}
-      <SuburbStatsPanel postcode={userPostcode} enabled={enabled} />
 
       {/* Mortgage Calculator */}
       <MortgageCalculator />

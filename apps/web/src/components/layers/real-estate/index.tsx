@@ -3,20 +3,12 @@
 /**
  * Real Estate & Housing Layer
  * Agent 5 — Plugs into the LayerManager and dashboard layout.
- *
- * Follows the layer template pattern:
- * 1. Exports LayerPanel for sidebar/detail content
- * 2. Exports getMapSources() for GeoJSON data
- * 3. Exports getMapLayers() for MapLibre style definitions
- * 4. Uses TanStack Query for data fetching
- * 5. Registers equity alerts via shared alert system
  */
 
 import { useEffect, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
 import type { LayerId } from "@ozpulse/shared";
 import { useLayerManager } from "@/components/map/LayerManager";
-import { useUserProfile } from "@/stores/user-profile";
+import { useUserProfileStore } from "@/stores/user-profile";
 import { useMapStore } from "@/stores/map-store";
 import {
   RealEstateLayerPanel,
@@ -31,30 +23,31 @@ export const LAYER_ID: LayerId = "real-estate";
 
 export interface RealEstateLayerProps {
   enabled: boolean;
-  userPostcode: string;
+  userPostcode?: string;
 }
 
-export default function RealEstateLayer({
+export default function RealEstateLayerComponent({
   enabled,
   userPostcode,
 }: RealEstateLayerProps) {
   const { registerOverlay, removeOverlay } = useLayerManager();
-  const profile = useUserProfile((s) => s.profile);
+  const profile = useUserProfileStore((s) => s.profile);
+  const hasProfile = useUserProfileStore((s) => s.hasProfile);
   const { setDetailPanel, addAlert } = useMapStore();
 
-  const postcode = userPostcode || profile?.postcode || "2150";
+  const postcode = userPostcode || (hasProfile ? profile.postcode : "") || "2150";
 
   // Mortgage defaults from user profile
   const mortgageInput: MortgageInput | null = useMemo(() => {
-    if (!profile?.mortgageDetails) return null;
+    if (!hasProfile || profile.mortgageValue <= 0) return null;
     return {
-      propertyValue: profile.mortgageDetails.propertyValue,
-      loanRemaining: profile.mortgageDetails.loanRemaining,
-      remainingTermYears: profile.mortgageDetails.remainingTermYears,
-      interestRate: profile.mortgageDetails.interestRate,
-      netWorth: profile.mortgageDetails.netWorth ?? 550000,
+      propertyValue: profile.mortgageValue,
+      loanRemaining: profile.loanRemaining,
+      remainingTermYears: profile.remainingTermYears,
+      interestRate: profile.interestRate,
+      netWorth: profile.mortgageValue - profile.loanRemaining,
     };
-  }, [profile]);
+  }, [hasProfile, profile]);
 
   // Equity widget for top bar
   const equityWidget = useEquityWidget(mortgageInput, postcode);
@@ -128,7 +121,7 @@ export default function RealEstateLayer({
           netWorth: 550000,
         }
       }
-      state={(profile?.pinnedLocations?.home?.postcode?.startsWith("2") ? "NSW" : "VIC") as any}
+      state={postcode.startsWith("2") ? "NSW" : postcode.startsWith("3") ? "VIC" : postcode.startsWith("4") ? "QLD" : postcode.startsWith("5") ? "SA" : postcode.startsWith("6") ? "WA" : postcode.startsWith("7") ? "TAS" : "NSW"}
       onListingClick={handleListingClick}
     />
   );
