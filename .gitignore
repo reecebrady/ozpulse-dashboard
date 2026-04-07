@@ -7,3 +7,4 @@ dist/
 .env.production
 *.tsbuildinfo
 .DS_Store
+.claude/
