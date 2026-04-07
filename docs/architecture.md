@@ -1,33 +1,21 @@
-# OzPulse Architecture
+# Architecture
 
 ## Overview
-
-Single-page dashboard app with a full-screen interactive map as the primary interface. Built as a Turborepo monorepo with Next.js 15 App Router.
+Single-page dashboard with full-screen MapLibre map as the primary view.
+All data layers are lazy-loaded React components that register with a central LayerManager.
 
 ## Data Flow
+1. User opens app -> map loads centered on Australia
+2. User enables layer via sidebar toggle
+3. Layer component lazy-loads, fetches data via TanStack Query
+4. Data renders as map overlays (GeoJSON sources + MapLibre layers)
+5. Click events on map features open the right detail panel
+6. Alerts pushed to bottom feed based on user thresholds
 
-```
-External APIs (AEMO, Domain, ABS, etc.)
-        |
-  Next.js API Routes (apps/web/app/api/)
-        |
-  TanStack Query (client-side caching + refetch)
-        |
-  Layer Components (lazy-loaded, render map overlays)
-        |
-  MapLibre GL JS (renders everything on canvas)
-```
+## State Management
+- `mapStore` (Zustand): layer visibility, selected features, alerts
+- `userStore` (Zustand + persist): user profile, postcode, mortgage, thresholds
 
-## Key Decisions
-
-- **MapLibre GL JS** over Leaflet: WebGL rendering handles thousands of pins/heatmap cells without DOM bottlenecks. Open source, no token required.
-- **App Router** over Pages: Server components for initial data, streaming for progressive layer loading.
-- **TanStack Query**: Each layer manages its own cache with independent refresh intervals (energy: 5min, property: 1hr, crime: daily).
-- **PostGIS**: Spatial queries for "near my postcode" and geofencing alerts.
-- **Lazy loading**: Each layer is `React.lazy()` imported, only loaded when toggled on.
-
-## Deployment
-
-- Vercel Sydney edge for frontend (instant loads for AU users)
-- Supabase AU region for PostgreSQL + PostGIS + Auth
-- Background cron jobs refresh external data into Supabase cache tables
+## API Routes
+Next.js API routes in `apps/web/src/app/api/` proxy external data sources.
+This prevents CORS issues and allows server-side caching.

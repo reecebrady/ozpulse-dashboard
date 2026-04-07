@@ -1,11 +1,9 @@
 node_modules/
 .next/
 dist/
+.turbo/
 .env
 .env.local
-.env.*.local
+.env.production
 *.tsbuildinfo
-.turbo/
-.vercel/
 .DS_Store
-.claude/worktrees/
